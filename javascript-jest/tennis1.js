@@ -1,7 +1,20 @@
 'use strict';
 
 function getScore(playerOneScore, playerTwoScore) {
-    const scoreNames = {
+    const scoreNames = new ScoreNames();
+    if (playerOneScore === playerTwoScore) {
+        return scoreNames.getTiedScoreName(playerOneScore);
+    }
+
+    if (playerOneScore >= 4 || playerTwoScore >= 4) {
+        return scoreNames.getAdvantageScoreName(playerOneScore, playerTwoScore);
+    }
+
+    return scoreNames.getScoreName(playerOneScore, playerTwoScore)
+}
+
+class ScoreNames {
+    #scoreNames = {
         0: "Love",
         1: "Fifteen",
         2: "Thirty",
@@ -12,21 +25,21 @@ function getScore(playerOneScore, playerTwoScore) {
             "-1": "Advantage player2",
             "2": "Win for player1",
             "-2": "Win for player2",
-            getScoreName: (playerOneScore, playerTwoScore) => scoreNames.advantageAndWin[Math.max(-2, Math.min(2, playerOneScore - playerTwoScore)).toString()]
         }
     };
 
-    if (playerOneScore === playerTwoScore) {
-        if (playerOneScore >= 3) { return scoreNames.deuce; }
-
-        return `${scoreNames[playerOneScore]}-All`;
+    getScoreName(playerOneScore, playerTwoScore) {
+        return `${this.#scoreNames[playerOneScore]}-${this.#scoreNames[playerTwoScore]}`
     }
 
-    if (playerOneScore >= 4 || playerTwoScore >= 4) {
-        return scoreNames.advantageAndWin.getScoreName(playerOneScore, playerTwoScore);
+    getTiedScoreName(score) {
+        if (score >= 3) { return this.#scoreNames.deuce; }
+        return `${this.#scoreNames[score]}-All`
     }
 
-    return `${scoreNames[playerOneScore]}-${scoreNames[playerTwoScore]}`;
+    getAdvantageScoreName(playerOneScore, playerTwoScore) {
+        return this.#scoreNames.advantageAndWin[Math.max(-2, Math.min(2, playerOneScore - playerTwoScore)).toString()]
+    }
 }
 
 module.exports = getScore;
